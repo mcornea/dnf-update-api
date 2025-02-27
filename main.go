@@ -78,12 +78,12 @@ func updatesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := UpdateResponse{
-		Status:  "NO_UPDATES",
+		Status:  "Up-to-date",
 		Updates: updates,
 	}
 
 	if len(updates) > 0 {
-		response.Status = "AVAILABLE_UPDATES"
+		response.Status = "Updates available"
 	}
 
 	sendJSONResponse(w, response)
@@ -103,7 +103,7 @@ func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := UpdateResponse{
-		Status: "UPGRADE_SUCCESSFUL",
+		Status: "Upgrade succeeded",
 	}
 	sendJSONResponse(w, response)
 }

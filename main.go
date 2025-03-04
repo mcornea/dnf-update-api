@@ -41,6 +41,13 @@ func main() {
 
 // Basic health check endpoint
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := updater.CheckUpdates()
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		fmt.Fprint(w, "Service Unavailable")
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "OK")
 }

@@ -2,6 +2,7 @@ package updater
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -19,13 +20,40 @@ func CheckUpdates() ([]string, error) {
 	return parseUpdateList(string(output)), nil
 }
 
-// UpgradePackages performs a system upgrade using dnf
+// UpgradePackages performs a system upgrade using dnf and reboots if kernel was updated
 func UpgradePackages() error {
+	// First check what packages will be updated
+	updatesBeforeUpgrade, err := CheckUpdates()
+	if err != nil {
+		return fmt.Errorf("error checking updates before upgrade: %v", err)
+	}
+
+	// Check if any kernel packages are in the update list
+	kernelUpdateNeeded := false
+	for _, pkg := range updatesBeforeUpgrade {
+		if strings.HasPrefix(pkg, "kernel") || strings.HasPrefix(pkg, "linux-firmware") {
+			kernelUpdateNeeded = true
+			break
+		}
+	}
+
+	// Perform the upgrade
 	cmd := exec.Command("chroot", "/host", "dnf", "upgrade", "-y")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("error upgrading packages: %v, output: %s", err, string(output))
 	}
+
+	// If kernel was updated, reboot the system
+	if kernelUpdateNeeded && os.Getenv("KERNEL_UPDATE_REBOOT") == "true" {
+		fmt.Println("Kernel update detected. Rebooting system...")
+		rebootCmd := exec.Command("chroot", "/host", "systemctl", "reboot")
+		rebootOutput, rebootErr := rebootCmd.CombinedOutput()
+		if rebootErr != nil {
+			return fmt.Errorf("error rebooting system: %v, output: %s", rebootErr, string(rebootOutput))
+		}
+	}
+
 	return nil
 }
 

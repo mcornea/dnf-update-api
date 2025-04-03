@@ -10,10 +10,17 @@ if [ -z "$API_TOKEN" ]; then
     echo "Generated API token: $API_TOKEN"
 fi
 
+# Set KERNEL_UPDATE_REBOOT to false by default if not provided
+if [ -z "$KERNEL_UPDATE_REBOOT" ]; then
+    KERNEL_UPDATE_REBOOT="false"
+    echo "KERNEL_UPDATE_REBOOT not set, defaulting to: $KERNEL_UPDATE_REBOOT"
+fi
+
 # Run the container
 podman run -d --name dnf-update-api \
     -p 8080:8080 \
     -e API_TOKEN="$API_TOKEN" \
+    -e KERNEL_UPDATE_REBOOT="$KERNEL_UPDATE_REBOOT" \
     --privileged \
     --health-cmd "curl -s http://localhost:8080/health | grep OK" \
     --health-on-failure=kill \

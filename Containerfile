@@ -15,8 +15,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o dnf-update-api ./
 
 FROM fedora:latest
 
-# Install dnf utilities
-RUN dnf install -y dnf-utils && \
+# Install dnf utilities and tini
+RUN dnf install -y dnf-utils tini && \
     dnf clean all && \
     rm -rf /etc/yum.repos.d/*
 
@@ -32,4 +32,4 @@ chmod +x /app/entrypoint.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/app/entrypoint.sh"]

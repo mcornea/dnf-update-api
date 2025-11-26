@@ -24,9 +24,9 @@ podman run -d --name dnf-update-api \
     --privileged \
     --health-cmd "curl -s http://localhost:8080/health | grep OK" \
     --health-on-failure=kill \
-    --health-retries=3 
+    --health-retries=3 \
     -v /:/host \
     dnf-update-api
 
 echo "DNF Update API is running on port 8080"
-echo "Use this token for API requests: $API_TOKEN"echo "Use this token for API requests: $API_TOKEN"
+echo "Use this token for API requests: $API_TOKEN"
